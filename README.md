@@ -1,6 +1,15 @@
-# click-processor
+## Click (Formerly One-Button) MVP Specification
 
-TODO: Write a description here
+```bash
+click
+    --config=nptm.json
+    --output=output.mp3
+    --intro=intro.mp3
+    --outro=outro.mp3
+    daniel.mp3
+    caleb.mp3
+    
+```
 
 ## Installation
 
@@ -21,7 +30,3 @@ TODO: Write development instructions here
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
-
-## Contributors
-
-- [Daniel Coulbourne](https://github.com/your-github-user) - creator and maintainer
