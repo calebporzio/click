@@ -15,8 +15,12 @@ module Click::Processor
       exit
     end
     parser.on "-d DIRECTORY", "--directory=DIRECTORY", "Concatenate all audio files in a directory" do |directory|
-      stdout = IO::Memory.new
-      process = Process.run("ls", [directory], output: Process::Redirect::Pipe)
+      process = Process.new("ls", [directory], output: Process::Redirect::Pipe, error: Process::Redirect::Pipe)
+
+      error = process.error.gets_to_end
+      output = process.output.gets_to_end
+
+      puts process.wait.success? ? output : error
     end
   end
 end
