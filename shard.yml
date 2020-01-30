@@ -1,0 +1,13 @@
+name: click-processor
+version: 0.1.0
+
+authors:
+  - Daniel Coulbourne <daniel@tighten.co>
+
+targets:
+  click-processor:
+    main: src/click-processor.cr
+
+crystal: 0.32.1
+
+license: MIT
