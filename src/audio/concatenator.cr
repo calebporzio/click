@@ -1,19 +1,18 @@
-class Concatenator
-  @@recipe_filename = "click-concatenation-recipe.tmp"
-  @@output_filename = "mixdown-#{Time.utc}.mp3"
+require "file"
 
-  def initialize(files : Array(String), directory : String)
+class Concatenator
+  RECIPE_FILENAME = "click-concatenator-recipe"
+  @recipe : File
+
+  def initialize(files : Array(String))
     @files = files
-    @directory = directory
+    @recipe = File.tempfile(RECIPE_FILENAME)
   end
 
   def build_recipe
-    FileUtils.cd(@directory)
-    FileUtils.touch(@@recipe_filename)
+    concatenationRecipe = "# Concatenation Recipe for Click. Generated at #{Time.utc} \n" + @files.map! { |file| "file '#{file}'" }.join("\n")
 
-    concatenationRecipe = "# Concatenation Recipe for Click. Generated at #{Time.utc} \n" + @files.map! { |file| "file '#{FileUtils.pwd}/#{file}'" }.join("\n")
-
-    File.write(@@recipe_filename, concatenationRecipe)
+    File.write(@recipe.path, concatenationRecipe)
   end
 
   def concatenate(output_filename)
@@ -25,7 +24,7 @@ class Concatenator
         "-safe",
         "0",
         "-i",
-        @@recipe_filename,
+        @recipe.path,
         "-c",
         "copy",
         output_filename,
@@ -40,17 +39,18 @@ class Concatenator
 
     if !success
       puts error
+      cleanup
       exit
     end
   end
 
   def cleanup
-    FileUtils.rm("click-concatenation-recipe.tmp")
+    @recipe.delete
   end
 
-  def run
+  def run(output_filename : String)
     build_recipe
-    concatenate(@@output_filename)
+    concatenate(output_filename)
     cleanup
   end
 end

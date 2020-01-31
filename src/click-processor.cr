@@ -1,44 +1,36 @@
+require "dir"
+require "path"
 require "option_parser"
-require "file_utils"
-require "./concatenator"
+require "./audio/concatenator"
 
-module Click::Processor
-  VERSION = "0.1.0"
+VERSION = "0.0.1"
+directory = ""
+output_filename = "mixdown-#{Time.utc}.mp3"
 
-  OptionParser.parse do |parser|
-    parser.banner = "Welcome to Click Processor"
-
-    parser.on "-v", "--version", "Show Version" do
-      puts "version 0.0.1"
-      exit
-    end
-    parser.on "-h", "--help", "Show Help" do
-      puts parser
-      exit
-    end
-    parser.on "-d DIRECTORY", "--directory=DIRECTORY", "Concatenate all audio files in a directory" do |directory|
-      process = Process.new("ls", [directory], output: Process::Redirect::Pipe, error: Process::Redirect::Pipe)
-
-      error = process.error.gets_to_end
-      output = process.output.gets_to_end
-      processSuccess = process.wait.success?
-
-      if !processSuccess
-        puts error
-        exit
-      end
-
-      directoryContents = output.chomp.split("\n")
-
-      directoryMp3Files = directoryContents.select! { |file| file.ends_with?(".mp3") }
-
-      if directoryMp3Files.empty?
-        puts "Sorry, there are no mp3 files in that directory."
-      end
-
-      Concatenator.new(directoryMp3Files, directory).run
-
-      puts "Success!"
-    end
-  end
+# Handle the passed options
+OptionParser.parse do |parser|
+  parser.banner = "Welcome to Click Processor"
+  parser.on("-v", "--version", "Show Version") { puts "Version " + VERSION }
+  parser.on("-h", "--help", "Show Help") { puts parser }
+  parser.on("-d DIRECTORY", "--directory=DIRECTORY", "Concatenate all audio files in a directory") { |dir| directory = Path[dir].expand(home: true).to_s }
+  parser.on("-o FILENAME", "--output=FILENAME", "The output filename") { |filename| output_filename = Path[filename].expand(home: true).to_s }
 end
+
+# Ensure we have a directory and at least something for the output filename
+exit if directory.blank? || output_filename.blank?
+
+# Process...
+# 1. Get the MP3 files from the passed directory (removing the trailing slash if it has one)
+audioFiles = Dir.glob(directory.chomp("/") + "/*.mp3")
+
+# 2. Exit if we don't have any MP3 files to process
+if audioFiles.empty?
+  puts "There are no MP3 files in the specified directory."
+  exit(1)
+end
+
+# 3. Concatenate the MP3 files and output the concatenated audio
+Concatenator.new(audioFiles).run(output_filename)
+
+# 4. Success message
+puts "Success"
