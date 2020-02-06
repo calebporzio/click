@@ -16,7 +16,7 @@ class Mixer
     input_arguments
   end
 
-  def mix(output_filename)
+  def mix(output_directory : String, output_filename : String)
     mix = Process.new(
       "ffmpeg",
       build_input_list +
@@ -25,7 +25,7 @@ class Mixer
         "amix=inputs=" + @files.size.to_s + ":duration=longest:dropout_transition=0",
         "-safe",
         "0",
-        output_filename,
+        "#{output_directory}/#{output_filename}",
       ],
       output: Process::Redirect::Pipe,
       error: Process::Redirect::Pipe
@@ -41,7 +41,7 @@ class Mixer
     end
   end
 
-  def run(output_filename : String)
-    mix(output_filename)
+  def run(output_directory : String, output_filename : String)
+    mix(output_directory, output_filename)
   end
 end

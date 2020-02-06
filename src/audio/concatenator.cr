@@ -15,7 +15,7 @@ class Concatenator
     File.write(@recipe.path, concatenationRecipe)
   end
 
-  def concatenate(output_filename)
+  def concatenate(output_directory : String, output_filename : String)
     concat = Process.new(
       "ffmpeg",
       [
@@ -27,7 +27,7 @@ class Concatenator
         @recipe.path,
         "-c",
         "copy",
-        output_filename,
+        "#{output_directory}/#{output_filename}",
       ],
       output: Process::Redirect::Pipe,
       error: Process::Redirect::Pipe
@@ -48,9 +48,9 @@ class Concatenator
     @recipe.delete
   end
 
-  def run(output_filename : String)
+  def run(output_directory : String, output_filename : String)
     build_recipe
-    concatenate(output_filename)
+    concatenate(output_directory, output_filename)
     cleanup
   end
 end
