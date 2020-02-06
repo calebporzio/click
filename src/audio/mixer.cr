@@ -23,6 +23,7 @@ class Mixer
       [
         "-filter_complex",
         "amix=inputs=" + @files.size.to_s + ":duration=longest:dropout_transition=0",
+        "-ac",
         "-safe",
         "0",
         "#{output_directory}/#{output_filename}",

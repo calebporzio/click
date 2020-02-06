@@ -32,53 +32,57 @@ OptionParser.parse do |parser|
   parser.on("-x", "--demo", "Run In Demo Mode") { demo = true }
 end
 
-def demoRun
-  intro = file = File.new(directory.chomp("/") + "/intro.m4a").path
-  caleb = file = File.new(directory.chomp("/") + "/caleb.m4a").path
-  daniel = file = File.new(directory.chomp("/") + "/daniel.m4a").path
-  outro = file = File.new(directory.chomp("/") + "/outro.m4a").path
-  Mixer.new([daniel, caleb]).run(directory.chomp("/") + "/mainShow.m4a")
-  mainShow = file = File.new(directory.chomp("/") + "/mainShow.m4a").path
-  Concatenator.new([intro, mainShow, outro]).run(output_filename)
-  File.delete(directory.chomp("/") + "/mainShow.m4a")
-  puts "Success"
-end
-
 if demo
-  demoRun
-else
-  # Ensure we have a directory and at least something for the output filename
-  exit if directory.blank? || output_filename.blank?
+  intro = File.new(directory.chomp("/") + "/intro.m4a").path
+  caleb = File.new(directory.chomp("/") + "/caleb.m4a").path
+  daniel = File.new(directory.chomp("/") + "/daniel.m4a").path
+  outro = File.new(directory.chomp("/") + "/outro.m4a").path
 
-  # Ensure we only have one operation set
-  if operations.select { |key, value| value }.size > 1
-    puts "You must specify whether you want to concatenate, mix or level the files."
-    exit(1)
-  end
+  Mixer.new([daniel, caleb]).run(output_directory, "mainShow.m4a")
+  mainShow = File.new(output_directory.chomp("/") + "/mainShow.m4a").path
 
-  # Process...
-  # 1. Get the MP3 files from the passed directory (removing the trailing slash if it has one)
-  audioFiles = Dir.glob(directory + "/*.mp3")
+  Concatenator.new([intro, mainShow, outro]).run(output_directory, output_filename)
+  mixdown = File.new(output_directory.chomp("/") + "/#{output_filename}").path
 
-  # 2. Exit if we don't have any MP3 files to process
-  if audioFiles.empty?
-    puts "There are no MP3 files in the specified directory."
-    exit(1)
-  end
+  Leveler.new([mixdown]).run(output_directory)
 
-  # 3. Concatenate or Mix the MP3 files and output the concatenated audio
-  if operations["concatenate"]
-    Concatenator.new(audioFiles).run(output_directory, output_filename)
-  end
+  File.delete(output_directory.chomp("/") + "/mainShow.m4a")
 
-  if operations["mix"]
-    Mixer.new(audioFiles).run(output_directory, output_filename)
-  end
-
-  if operations["level"]
-    Leveler.new(audioFiles).run(output_directory)
-  end
-
-  # 4. Success message
-  puts "Success"
+  puts "Demo mode complete"
+  exit
 end
+
+# Ensure we have a directory and at least something for the output filename
+exit if directory.blank? || output_filename.blank?
+
+# Ensure we only have one operation set
+if operations.select { |key, value| value }.size > 1
+  puts "You must specify whether you want to concatenate, mix or level the files."
+  exit(1)
+end
+
+# Process...
+# 1. Get the MP3 files from the passed directory (removing the trailing slash if it has one)
+audioFiles = Dir.glob(directory + "/*.mp3")
+
+# 2. Exit if we don't have any MP3 files to process
+if audioFiles.empty?
+  puts "There are no MP3 files in the specified directory."
+  exit(1)
+end
+
+# 3. Concatenate or Mix the MP3 files and output the concatenated audio
+if operations["concatenate"]
+  Concatenator.new(audioFiles).run(output_directory, output_filename)
+end
+
+if operations["mix"]
+  Mixer.new(audioFiles).run(output_directory, output_filename)
+end
+
+if operations["level"]
+  Leveler.new(audioFiles).run(output_directory)
+end
+
+# 4. Success message
+puts "Success"
