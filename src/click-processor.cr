@@ -33,20 +33,20 @@ OptionParser.parse do |parser|
 end
 
 if demo
-  intro = File.new(directory.chomp("/") + "/intro.m4a").path
-  caleb = File.new(directory.chomp("/") + "/caleb.m4a").path
-  daniel = File.new(directory.chomp("/") + "/daniel.m4a").path
-  outro = File.new(directory.chomp("/") + "/outro.m4a").path
+  intro = File.new(directory.chomp("/") + "/intro.mp3").path
+  caleb = File.new(directory.chomp("/") + "/caleb.mp3").path
+  daniel = File.new(directory.chomp("/") + "/daniel.mp3").path
+  outro = File.new(directory.chomp("/") + "/outro.mp3").path
 
-  Mixer.new([daniel, caleb]).run(output_directory, "mainShow.m4a")
-  mainShow = File.new(output_directory.chomp("/") + "/mainShow.m4a").path
+  Mixer.new([daniel, caleb]).run(output_directory, "mainShow.mp3")
+  mainShow = File.new(output_directory.chomp("/") + "/mainShow.mp3").path
 
   Concatenator.new([intro, mainShow, outro]).run(output_directory, output_filename)
   mixdown = File.new(output_directory.chomp("/") + "/#{output_filename}").path
 
   Leveler.new([mixdown]).run(output_directory)
 
-  File.delete(output_directory.chomp("/") + "/mainShow.m4a")
+  # File.delete(output_directory.chomp("/") + "/mainShow.mp3")
 
   puts "Demo mode complete"
   exit
