@@ -9,26 +9,12 @@ class Concatenator
     @recipe = File.tempfile(RECIPE_FILENAME)
   end
 
-  def build_recipe
-    concatenationRecipe = "# Concatenation Recipe for Click. Generated at #{Time.utc} \n" + @files.map! { |file| "file '#{file}'" }.join("\n")
-
-    File.write(@recipe.path, concatenationRecipe)
-  end
-
   def concatenate(output_directory : String, output_filename : String)
+    arguments = @files.push("#{output_directory}/#{output_filename}")
+
     concat = Process.new(
-      "ffmpeg",
-      [
-        "-f",
-        "concat",
-        "-safe",
-        "0",
-        "-i",
-        @recipe.path,
-        "-c",
-        "copy",
-        "#{output_directory}/#{output_filename}",
-      ],
+      "sox",
+      arguments,
       output: Process::Redirect::Pipe,
       error: Process::Redirect::Pipe
     )
@@ -49,7 +35,6 @@ class Concatenator
   end
 
   def run(output_directory : String, output_filename : String)
-    build_recipe
     concatenate(output_directory, output_filename)
     cleanup
   end

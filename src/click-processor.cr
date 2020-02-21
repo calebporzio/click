@@ -10,6 +10,7 @@ VERSION = "0.0.1"
 directory = ""
 output_directory = FileUtils.pwd.chomp("/")
 output_filename = "mixdown-#{Time.utc}.mp3"
+demo = false
 
 operations = {
   "concatenate" => false,
@@ -28,6 +29,27 @@ OptionParser.parse do |parser|
   parser.on("-c", "--concatenate", "Concatenate the files") { operations["concatenate"] = true }
   parser.on("-m", "--mix", "Mix the files") { operations["mix"] = true }
   parser.on("-l", "--level", "Level the audio files") { operations["level"] = true }
+  parser.on("-x", "--demo", "Run In Demo Mode") { demo = true }
+end
+
+if demo
+  intro = Path[directory].join("/intro.mp3").to_s
+  caleb = Path[directory].join("/caleb.mp3").to_s
+  daniel = Path[directory].join("/daniel.mp3").to_s
+  outro = Path[directory].join("/outro.mp3").to_s
+
+  Mixer.new([daniel, caleb]).run(output_directory, "mainShow.mp3")
+  mainShow = Path[output_directory].join("/mainShow.mp3").to_s
+
+  Concatenator.new([intro, mainShow, outro]).run(output_directory, output_filename)
+  mixdown = File.new(output_directory.chomp("/") + "/#{output_filename}").path
+
+  Leveler.new([mixdown]).run(output_directory)
+
+  File.delete(output_directory.chomp("/") + "/mainShow.mp3")
+
+  puts "Demo mode complete"
+  exit
 end
 
 # Ensure we have a directory and at least something for the output filename

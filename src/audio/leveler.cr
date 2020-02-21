@@ -7,7 +7,7 @@ class Leveler
 
   def level(output_directory : String)
     @files.each { |file|
-      filename = file.split("/").last.chomp(".mp3")
+      filename = file.split("/").last
 
       level = Process.new(
         "ffmpeg",
@@ -18,7 +18,7 @@ class Leveler
           "loudnorm",
           "-safe",
           "0",
-          "#{output_directory}/#{filename}-leveled.mp3",
+          "#{output_directory}/leveled-#{filename}",
         ],
         output: Process::Redirect::Pipe,
         error: Process::Redirect::Pipe
