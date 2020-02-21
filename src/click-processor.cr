@@ -46,7 +46,7 @@ if demo
 
   Leveler.new([mixdown]).run(output_directory)
 
-  # File.delete(output_directory.chomp("/") + "/mainShow.mp3")
+  File.delete(output_directory.chomp("/") + "/mainShow.mp3")
 
   puts "Demo mode complete"
   exit
