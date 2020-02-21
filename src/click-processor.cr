@@ -33,13 +33,13 @@ OptionParser.parse do |parser|
 end
 
 if demo
-  intro = File.new(directory.chomp("/") + "/intro.mp3").path
-  caleb = File.new(directory.chomp("/") + "/caleb.mp3").path
-  daniel = File.new(directory.chomp("/") + "/daniel.mp3").path
-  outro = File.new(directory.chomp("/") + "/outro.mp3").path
+  intro = Path[directory].join("/intro.mp3").to_s
+  caleb = Path[directory].join("/caleb.mp3").to_s
+  daniel = Path[directory].join("/daniel.mp3").to_s
+  outro = Path[directory].join("/outro.mp3").to_s
 
   Mixer.new([daniel, caleb]).run(output_directory, "mainShow.mp3")
-  mainShow = File.new(output_directory.chomp("/") + "/mainShow.mp3").path
+  mainShow = Path[output_directory].join("/mainShow.mp3").to_s
 
   Concatenator.new([intro, mainShow, outro]).run(output_directory, output_filename)
   mixdown = File.new(output_directory.chomp("/") + "/#{output_filename}").path
